@@ -1,0 +1,24 @@
+.navigation {
+  margin: 2em auto 2.5em;
+  padding: 0 1.25em;
+  display: inline-block;
+  vertical-align: middle;
+  background: transparent;
+  white-space: nowrap;
+
+  a {
+    color: white;
+    font-size: 1.5em;
+    font-weight: 800;
+    text-decoration: none;
+    font-weight: 100;
+
+    cursor: pointer;
+    padding: 0.575em 0.65em;
+    display: inline-block;
+
+    &.active {
+      text-decoration: underline;
+    }
+  }
+}
