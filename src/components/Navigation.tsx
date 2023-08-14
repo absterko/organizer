@@ -8,7 +8,7 @@ const Navigation = (props: Props) => {
     <nav className="navigation">
       <NavLink to="/home"> home </NavLink>
       <a>/</a>
-      <NavLink to="/todo"> todo </NavLink>
+      <NavLink to="/organizer"> organizer </NavLink>
       <a>/</a>
       <NavLink to="/about"> about </NavLink>
     </nav>
