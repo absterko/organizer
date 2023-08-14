@@ -1,13 +1,142 @@
-body {
+html {
+  background: #515a6d;
+  font-size: 100%;
+  font-family: Monospace, sans-serif;
+  font-weight: 400;
+  text-align: center;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 1em 1.5em 1em 0.5em;
+  height: 100vh;
+  display: grid;
+  -webkit-box-pack: center;
+  justify-content: center;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.todoModal {
+  border: 5px solid #111;
+  border-radius: 8px;
+  padding: 2em;
+  background: #fee6e39a;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  font-size: 1.2em;
+}
+
+h1 {
+  color: whitesmoke;
+}
+
+h2 {
+  font-size: 1em;
+  color: whitesmoke;
+  margin: 0.5em;
+}
+
+.todoModal,
+.todoList {
+  animation: fadeIn 2s;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.taskText {
+  height: 2em;
+}
+
+.todoList {
+  border: 2px solid #111;
+  border-radius: 8px;
+  padding: 1em;
+  background: #fee6e341;
+  margin-top: 30px;
+  font-size: 1.2em;
+  max-width: 700px;
+}
+
+input,
+select,
+option,
+textarea {
+  font-family: Monospace, sans-serif;
+  color: #111;
+  font-size: 16px;
+  background-color: #fee6e3;
+  border: 2px solid #111;
+  border-radius: 8px;
+  display: block;
+  text-align: center;
+  margin: 0 auto 0.1em;
+  height: 2em;
+  touch-action: manipulation;
+  width: 290px;
+  text-transform: uppercase;
+}
+
+button {
+  font-family: Monospace, sans-serif;
+  align-items: center;
+  background-color: #fee6e3;
+  border: 2px solid #111;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #111;
+  cursor: pointer;
+  display: flex;
+  font-size: 16px;
+  height: 48px;
+  justify-content: center;
+  line-height: 24px;
+  max-width: 100%;
+  padding: 0 25px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  margin-left: auto;
+  margin-right: auto;
+  text-transform: uppercase;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+button:after {
+  background-color: #111;
+  border-radius: 8px;
+  content: "";
+  display: block;
+  height: 48px;
+  left: 0;
+  width: 100%;
+  position: absolute;
+  top: -2px;
+  transform: translate(6px, 6px);
+  transition: transform 0.2s ease-out;
+  z-index: -1;
+}
+
+button:hover:after {
+  transform: translate(0, 0);
+}
+
+button:active {
+  background-color: #ffdeda;
+  outline: 0;
+}
+
+button:hover {
+  outline: 0;
+}
+@media (min-width: 768px) {
+  button {
+    padding: 0 40px;
+  }
 }
