@@ -5,8 +5,8 @@ type Props = {};
 const About = (props: Props) => {
   return (
     <p>
-      If I had nine hours to chop down a tree, I’d spend the first six
-      sharpening my axe. — <strong> Abraham Lincoln </strong>
+      If I had nine hours to build an app, I’d spend the first eight preparing
+      my IDE. — <strong> Abraham Lincoln </strong>
     </p>
   );
 };
