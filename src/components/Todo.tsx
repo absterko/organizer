@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./Todo.scss";
 
-type Todo = {
+type TodoItem = {
   title: string;
   text: string;
   completed: boolean;
@@ -11,8 +11,9 @@ type Todo = {
 };
 
 type TodoList = {
+  id: string;
   name: string;
-  todos: Todo[];
+  todos: TodoItem[];
 };
 
 const Todo: React.FC = () => {
@@ -23,12 +24,30 @@ const Todo: React.FC = () => {
   const [newTodoDeadline, setNewTodoDeadline] = useState<Date | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const addTodoList = () => {
-    setTodoLists([...todoLists, { name: newListName, todos: [] }]);
-    setNewListName("");
+    const newList = { name: newListName, todos: [] };
+
+    fetch("https://64da2d5be947d30a260ae829.mockapi.io/api/v1/test", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newList),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to add todo list");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setTodoLists((prevLists) => [...prevLists, { ...data, todos: [] }]);
+        setNewListName("");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   const addTodo = (listName: string) => {
@@ -36,20 +55,35 @@ const Todo: React.FC = () => {
       return;
     }
 
-    const newTodo: Todo = {
+    const newTodo: TodoItem = {
       title: newTodoTitle,
       text: newTodoText,
       completed: false,
       deadline: newTodoDeadline,
     };
 
-    fetch("https://64da2d5be947d30a260ae829.mockapi.io/api/v1/test", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newTodo),
-    })
+    const list = todoLists.find((list) => list.name === listName);
+
+    if (!list) {
+      console.error(`List ${listName} not found`);
+      return;
+    }
+
+    const updatedList = {
+      ...list,
+      todos: [...list.todos, newTodo],
+    };
+
+    fetch(
+      `https://64da2d5be947d30a260ae829.mockapi.io/api/v1/test/${list.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedList),
+      }
+    )
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to add todo");
@@ -58,11 +92,7 @@ const Todo: React.FC = () => {
       })
       .then((data) => {
         setTodoLists((prevLists) =>
-          prevLists.map((list) =>
-            list.name === listName
-              ? { ...list, todos: [...list.todos, data] }
-              : list
-          )
+          prevLists.map((list) => (list.id === data.id ? { ...data } : list))
         );
         setNewTodoTitle("");
         setNewTodoText("");
@@ -70,7 +100,6 @@ const Todo: React.FC = () => {
       })
       .catch((error) => {
         console.error(error);
-        // Handle the error (e.g., display error message)
       });
   };
 
@@ -83,17 +112,14 @@ const Todo: React.FC = () => {
         return response.json();
       })
       .then((data) => {
-        // Update the 'todos' property to an array
         const updatedTodoLists = data.map((list: TodoList) => ({
           ...list,
-          todos: list.todos ? list.todos : [], // Set as an empty array initially
+          todos: list.todos ? list.todos : [],
         }));
         setTodoLists(updatedTodoLists);
-        setIsLoading(false);
       })
       .catch((error) => {
-        setError(error.toString());
-        setIsLoading(false);
+        console.error("Update todo item failed:", error);
       });
   }, []);
 
@@ -131,25 +157,43 @@ const Todo: React.FC = () => {
     );
   };
 
-  const deleteTodo = (listName: string, todoText: string) => {
-    setTodoLists(
-      todoLists.map((list) =>
+  const deleteTodo = (listName: string, todoId: string) => {
+    const list = todoLists.find((list) => list.name === listName);
+
+    if (!list) {
+      console.error(`List ${listName} not found`);
+      return;
+    }
+    setTodoLists((prevLists) =>
+      prevLists.map((list) =>
         list.name === listName
           ? {
               ...list,
-              todos:
-                list?.todos?.filter((todo) => todo.text !== todoText) || [],
+              todos: list?.todos?.filter((todo) => todo.title !== todoId) || [],
             }
           : list
       )
     );
-  };
 
-  console.log(todoLists);
+    fetch(
+      `https://64da2d5be947d30a260ae829.mockapi.io/api/v1/test/${list.id}/todos/${todoId}`,
+      {
+        method: "DELETE",
+      }
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete todo");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   return (
     <div>
-      <h1>Todo list 📝</h1>
+      <h1>todo list 📝</h1>
       <input
         autoFocus
         placeholder="e.g. School..."
@@ -163,14 +207,14 @@ const Todo: React.FC = () => {
         <div className="todoList" key={list.name}>
           <h1>{list.name}</h1>
 
-          <h2>Title 📃</h2>
+          <h2>title 📃</h2>
           <input
             maxLength={20}
             placeholder="e.g. Math..."
             value={newTodoText}
             onChange={(e) => setNewTodoText(e.target.value)}
           />
-          <h2>Text 📑</h2>
+          <h2>text 📑</h2>
           <textarea
             maxLength={80}
             cols={25}
@@ -180,14 +224,14 @@ const Todo: React.FC = () => {
             value={newTodoTitle}
             onChange={(e) => setNewTodoTitle(e.target.value)}
           />
-          <h2>When it should be done? 🤔</h2>
+          <h2>when it should be done? 🤔</h2>
           <DatePicker
             selected={newTodoDeadline}
             onChange={(date) => setNewTodoDeadline(date as Date)}
             showTimeSelect
             timeFormat="HH:mm"
             timeIntervals={15}
-            dateFormat="MM/dd/yyyy HH:mm"
+            dateFormat="dd/MM/yyyy HH:mm"
             calendarStartDay={1}
             placeholderText="Select the date/time."
           />
@@ -195,14 +239,14 @@ const Todo: React.FC = () => {
             Add Todo
           </button>
 
-          <h2>Filter 🧮</h2>
+          <h2>filter 🧮</h2>
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
             <option value="all">All</option>
             <option value="completed">Completed</option>
             <option value="pending">Pending</option>
           </select>
 
-          <h2>Search 🔎</h2>
+          <h2>search 🔎</h2>
           <input
             placeholder="Search..."
             value={searchTerm}
@@ -231,10 +275,9 @@ const Todo: React.FC = () => {
               })
               .map((todo) => (
                 <div className="todoModal" key={todo.text}>
-                  <h3>{todo.text}</h3> <br /> {todo.title} <br />
-                  {todo.deadline
-                    ? todo.deadline.toLocaleString()
-                    : "No deadline"}
+                  <h3>📃 {todo.text}</h3> <br /> <p>📑 {todo.title}</p> <br />
+                  ⏳:
+                  {todo.deadline ? todo.deadline.toString() : "No deadline"}
                   <br />
                   {todo.completed ? <h1>✅🥳</h1> : <h1>❌🙄</h1>}
                   <button onClick={() => setTodoActive(list.name, todo.text)}>

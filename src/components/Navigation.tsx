@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
 import "./Navigation.scss";
 type Props = {};
@@ -8,7 +7,7 @@ const Navigation = (props: Props) => {
     <nav className="navigation">
       <NavLink to="/home"> home </NavLink>
       <a>/</a>
-      <NavLink to="/organizer"> organizer </NavLink>
+      <NavLink to="/todo"> todo </NavLink>
       <a>/</a>
       <NavLink to="/about"> about </NavLink>
     </nav>

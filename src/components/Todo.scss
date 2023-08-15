@@ -32,6 +32,11 @@ h2 {
   margin: 0.5em;
 }
 
+.todoModal p {
+  margin-bottom: 30px;
+  color: #111;
+}
+
 .todoModal,
 .todoList {
   animation: fadeIn 2s;

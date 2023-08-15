@@ -22,16 +22,6 @@ html {
   font-size: 1.2em;
 }
 
-h1 {
-  color: whitesmoke;
-}
-
-h2 {
-  font-size: 1em;
-  color: whitesmoke;
-  margin: 0.5em;
-}
-
 .todoModal,
 .todoList {
   animation: fadeIn 2s;
@@ -44,6 +34,16 @@ h2 {
   100% {
     opacity: 1;
   }
+}
+
+h1 {
+  color: whitesmoke;
+}
+
+h2 {
+  font-size: 1em;
+  color: whitesmoke;
+  margin: 0.5em;
 }
 
 .taskText {
