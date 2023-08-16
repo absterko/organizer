@@ -68,7 +68,6 @@ const Todo: React.FC = () => {
 
     if (!list) {
       throw new Error(`List ${listName} not found`);
-      return;
     }
 
     const updatedList = {
