@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
+import { v4 as uuidv4 } from "uuid";
+import { useForm } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
 import "./Todo.scss";
 
 type TodoItem = {
+  id: any;
   title: string;
   text: string;
   completed: boolean;
@@ -17,8 +20,9 @@ type TodoList = {
 };
 
 const Todo: React.FC = () => {
+  const { register, handleSubmit } = useForm();
   const [todoLists, setTodoLists] = useState<TodoList[]>([]);
-  const [newListName, setNewListName] = useState<string>("");
+  const [newListName, setNewListName] = useState("");
   const [newTodoTitle, setNewTodoTitle] = useState<string>("");
   const [newTodoText, setNewTodoText] = useState<string>("");
   const [newTodoDeadline, setNewTodoDeadline] = useState<Date | null>(null);
@@ -43,10 +47,7 @@ const Todo: React.FC = () => {
       })
       .then((data) => {
         setTodoLists((prevLists) => [...prevLists, { ...data, todos: [] }]);
-        setNewListName("");
-      })
-      .catch((error) => {
-        console.error(error);
+        setNewListName(data.newListName);
       });
   };
 
@@ -56,6 +57,7 @@ const Todo: React.FC = () => {
     }
 
     const newTodo: TodoItem = {
+      id: uuidv4(),
       title: newTodoTitle,
       text: newTodoText,
       completed: false,
@@ -65,7 +67,7 @@ const Todo: React.FC = () => {
     const list = todoLists.find((list) => list.name === listName);
 
     if (!list) {
-      console.error(`List ${listName} not found`);
+      throw new Error(`List ${listName} not found`);
       return;
     }
 
@@ -97,9 +99,6 @@ const Todo: React.FC = () => {
         setNewTodoTitle("");
         setNewTodoText("");
         setNewTodoDeadline(null);
-      })
-      .catch((error) => {
-        console.error(error);
       });
   };
 
@@ -119,76 +118,112 @@ const Todo: React.FC = () => {
         setTodoLists(updatedTodoLists);
       })
       .catch((error) => {
-        console.error("Update todo item failed:", error);
+        throw new Error("Update todo item failed:");
       });
   }, []);
 
   const setTodoPassive = (listName: string, todoText: string) => {
-    setTodoLists(
-      todoLists.map((list) =>
-        list.name === listName
-          ? {
-              ...list,
-              todos: list.todos?.map((todo) =>
-                todo.text === todoText
-                  ? { ...todo, completed: !todo.completed }
-                  : todo
-              ),
-            }
-          : list
-      )
+    const updatedTodoLists = todoLists.map((list) =>
+      list.name === listName
+        ? {
+            ...list,
+            todos: list.todos?.map((todo) =>
+              todo.text === todoText
+                ? { ...todo, completed: !todo.completed }
+                : todo
+            ),
+          }
+        : list
     );
+
+    setTodoLists(updatedTodoLists);
+
+    const list = updatedTodoLists.find((list) => list.name === listName);
+
+    if (list) {
+      fetch(
+        `https://64da2d5be947d30a260ae829.mockapi.io/api/v1/test/${list.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(list),
+        }
+      ).then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to update todo");
+        }
+      });
+    }
   };
 
   const setTodoActive = (listName: string, todoText: string) => {
-    setTodoLists(
-      todoLists.map((list) =>
-        list.name === listName
-          ? {
-              ...list,
-              todos: list.todos?.map((todo) =>
-                todo.text === todoText
-                  ? { ...todo, completed: !todo.completed }
-                  : todo
-              ),
-            }
-          : list
-      )
+    const updatedTodoLists = todoLists.map((list) =>
+      list.name === listName
+        ? {
+            ...list,
+            todos: list.todos?.map((todo) =>
+              todo.text === todoText
+                ? { ...todo, completed: !todo.completed }
+                : todo
+            ),
+          }
+        : list
     );
+
+    setTodoLists(updatedTodoLists);
+
+    const list = updatedTodoLists.find((list) => list.name === listName);
+
+    if (list) {
+      fetch(
+        `https://64da2d5be947d30a260ae829.mockapi.io/api/v1/test/${list.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(list),
+        }
+      ).then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to update todo");
+        }
+      });
+    }
   };
 
   const deleteTodo = (listName: string, todoId: string) => {
-    const list = todoLists.find((list) => list.name === listName);
-
-    if (!list) {
-      console.error(`List ${listName} not found`);
-      return;
-    }
-    setTodoLists((prevLists) =>
-      prevLists.map((list) =>
-        list.name === listName
-          ? {
-              ...list,
-              todos: list?.todos?.filter((todo) => todo.title !== todoId) || [],
-            }
-          : list
-      )
+    const updatedTodoLists = todoLists.map((list) =>
+      list.name === listName
+        ? {
+            ...list,
+            todos: list?.todos?.filter((todo) => todo.id !== todoId) || [],
+          }
+        : list
     );
 
-    fetch(
-      `https://64da2d5be947d30a260ae829.mockapi.io/api/v1/test/${list.id}/todos/${todoId}`,
-      {
-        method: "DELETE",
-      }
-    )
-      .then((response) => {
+    setTodoLists(updatedTodoLists);
+
+    const list = updatedTodoLists.find((list) => list.name === listName);
+
+    if (list) {
+      fetch(
+        `https://64da2d5be947d30a260ae829.mockapi.io/api/v1/test/${list.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(list),
+        }
+      ).then((response) => {
         if (!response.ok) {
           throw new Error("Failed to delete todo");
         }
-      })
-      .catch((error) => {
-        console.error(error);
       });
+    }
   };
 
   return (
@@ -198,10 +233,9 @@ const Todo: React.FC = () => {
         autoFocus
         placeholder="e.g. School..."
         maxLength={20}
-        value={newListName}
-        onChange={(e) => setNewListName(e.target.value)}
+        {...register("newListName")}
       />
-      <button onClick={addTodoList}>Add Todo List</button>
+      <button onClick={handleSubmit(addTodoList)}>Add Todo List</button>
 
       {todoLists.map((list) => (
         <div className="todoList" key={list.name}>
@@ -216,7 +250,7 @@ const Todo: React.FC = () => {
           />
           <h2>text 📑</h2>
           <textarea
-            maxLength={80}
+            maxLength={30}
             cols={25}
             rows={20}
             className="taskText"
@@ -276,8 +310,12 @@ const Todo: React.FC = () => {
               .map((todo) => (
                 <div className="todoModal" key={todo.text}>
                   <h3>📃 {todo.text}</h3> <br /> <p>📑 {todo.title}</p> <br />
-                  ⏳:
-                  {todo.deadline ? todo.deadline.toString() : "No deadline"}
+                  <p>
+                    ⌚: {""}
+                    {todo.deadline
+                      ? new Date(todo.deadline).toLocaleString()
+                      : "No deadline"}
+                  </p>
                   <br />
                   {todo.completed ? <h1>✅🥳</h1> : <h1>❌🙄</h1>}
                   <button onClick={() => setTodoActive(list.name, todo.text)}>
@@ -286,7 +324,7 @@ const Todo: React.FC = () => {
                   <button onClick={() => setTodoPassive(list.name, todo.text)}>
                     Not done yet 😏
                   </button>
-                  <button onClick={() => deleteTodo(list.name, todo.text)}>
+                  <button onClick={() => deleteTodo(list.name, todo.id)}>
                     Delete 🗑️
                   </button>
                 </div>

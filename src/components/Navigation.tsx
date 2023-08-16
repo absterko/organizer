@@ -6,9 +6,9 @@ const Navigation = (props: Props) => {
   return (
     <nav className="navigation">
       <NavLink to="/home"> home </NavLink>
-      <a>/</a>
+      <>/</>
       <NavLink to="/todo"> todo </NavLink>
-      <a>/</a>
+      <>/</>
       <NavLink to="/about"> about </NavLink>
     </nav>
   );
